@@ -42,7 +42,7 @@ communication_order = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text = 'Назад', callback_data = 'back_communication_order')]
 ])
 
-# клавиатура карт1
+# клавиатура для всех картингов
 cart_order = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text = 'Записаться', callback_data = 'order')],
     [InlineKeyboardButton(text = 'Связь с менеджером', callback_data = 'communication_order')],
