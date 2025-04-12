@@ -24,8 +24,7 @@ class Form(StatesGroup):
 @router.message(CommandStart())
 async def start(message: Message):
     await message.answer_photo(
-        photo = 'AgACAgIAAxkBAAMGZ_W9HvQRnVGYwJ_1jFto_W2JsS8AAoz3MRv7bahLrqQEdRvoU1IBAAMCAANtAAM2BA',
-        caption = '',
+        photo = 'AgACAgIAAxkBAAMPZ_rTcR4Fxy9QDNJ1ospWv7tw4PUAAq3oMRvqP9hLQtrl4uFev3QBAAMCAAN4AAM2BA',
     reply_markup = kb.main_menu
         )
 
@@ -90,7 +89,7 @@ async def reg_time(mess: Message, state: FSMContext):
 async def reg_crowd(mess: Message, state: FSMContext):
     await state.update_data(crowd = mess.text)
     await state.set_state(Form.phone_num)
-    await mess.answer('Введите свой номер телефона(По виду 12223334455)')
+    await mess.answer('Введите свой номер телефона(По виду 7 *** *** ** **)')
 
 # сохранение всех данных и их вывод.
 @router.message(Form.phone_num)
