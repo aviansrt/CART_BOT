@@ -1,3 +1,4 @@
+import pytz
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -5,7 +6,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram import Router, F
 from aiogram.fsm.state import StatesGroup, State
 
-from datetime import datetime, timezone
+
+from datetime import datetime
 import app.keyboards as kb
 from config import TARGET_CHAT, MAX_LENGTH
 
@@ -18,6 +20,10 @@ class Form(StatesGroup):
     age = State()
     crowd = State()
     time_order = State()
+
+
+class Feed_back(StatesGroup):
+    feed_back = State()
 
 
  # роутер для старта
@@ -49,6 +55,47 @@ async def linc_guard(mess: Message):
     await mess.answer('Ссылки запрещены!')
 
 
+# тут реагирование на кнопку отзывы
+@router.callback_query(F.data == 'feedback')
+async def feedback(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer('Ваш отзыв, пожалуйста!')
+    await state.set_state(Feed_back.feed_back)
+    await callback.answer()
+
+
+@router.message(Feed_back.feed_back)
+async def output(mess: Message, state: FSMContext, bot: router):
+    # Получаем текст сообщения
+    feedback_text = mess.text
+
+    # Сохраняем в состояние
+    await state.update_data(feedback=feedback_text)
+
+    try:
+        # Получаем данные из состояния
+        user_feedback = await state.get_data()
+
+        # Проверяем наличие данных
+        if 'feedback' not in user_feedback:
+            await mess.answer("Произошла ошибка при обработке отзыва. Попробуйте еще раз.")
+            return
+
+        # Формируем сообщение
+        response = f"#ОТЗЫВЫ\n{user_feedback['feedback']}"
+
+        # Отправляем в целевой чат
+        await bot.send_message(chat_id=TARGET_CHAT, text=response)
+        await mess.answer('Спасибо за отзыв!')
+
+        # Очищаем состояние
+        await state.clear()
+
+    except TelegramBadRequest as e:
+        await mess.answer(f"Проверьте наличие бота в приемном канале и наличие у него прав администратора. Ошибка: {e}")
+    except Exception as e:
+        await mess.answer(f"Произошла непредвиденная ошибка: {e}")
+
+
 # тут реагирование на кнопку записаться
 @router.callback_query(F.data == 'order')
 async def form_context(callback: CallbackQuery, state: FSMContext):
@@ -63,7 +110,7 @@ async def form_context(callback: CallbackQuery, state: FSMContext):
 async def reg_name(mess: Message, state: FSMContext):
     await state.update_data(name = mess.text)
     await state.set_state(Form.age)
-    await mess.answer('введите свой возраст')
+    await mess.answer('Введите свой возраст')
 
 # сохранение и запрос на время
 @router.message(Form.age)
@@ -75,7 +122,7 @@ async def reg_age(mess: Message, state: FSMContext):
         return
 
     await state.set_state(Form.time_order)
-    await mess.answer('введите день и время, в которые хотели бы посетить наш клуб(xx.yy.20nn и время)')
+    await mess.answer('Введите день и время, в которые хотели бы посетить наш клуб(xx.yy.20nn и время)')
 
 # сохранение и запрос на количество человек
 @router.message(Form.time_order)
@@ -101,6 +148,7 @@ async def reg_num_and_close_form(mess: Message, state: FSMContext, bot: router):
         return # обрывание функции, для повторного использования функции
 
     # сохранение номера и создание объекта, который отдает все данные
+    await mess.answer('Спасибо, регистрация завершена. \nС вами скоро свяжется наш менеджер.')
     await state.update_data(number=mess.text)
     user_data = await state.get_data()
 
@@ -113,7 +161,7 @@ async def reg_num_and_close_form(mess: Message, state: FSMContext, bot: router):
         f" Количество человек: {user_data['crowd']}\n"
         f" Телефон: {user_data['number']}\n"
         f"---------------------------------------\n"
-        f" Заявка отправлена: {datetime.now(timezone.utc).strftime("%H:%M, %d.%m.%Y")}"
+        f" Заявка отправлена: {datetime.now(pytz.timezone('Europe/Moscow')).strftime("%H:%M, %d.%m.%Y")}"
     )
 
     # проверка на наличие ошибок и несоответствий
