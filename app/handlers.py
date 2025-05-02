@@ -60,7 +60,7 @@ async def linc_guard(mess: Message):
 # тут реагирование на кнопку отзывы
 @router.callback_query(F.data == 'feedback')
 async def feedback(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer('Ваш отзыв, пожалуйста!', reply_markup=kb.feedback)
+    await callback.message.answer('Ваш отзыв, пожалуйста!')
     await state.set_state(Feed_back.feed_back)
     await callback.answer()
 
@@ -191,14 +191,14 @@ async def reg_num_and_close_form(mess: Message, state: FSMContext, bot: router):
 async def show_price(callback: CallbackQuery, bot: router):
     await callback.answer('Вы перешли в раздел прайс.')
 
-    photo_file_id = "AgACAgIAAxkBAAMFaBKGGg3y2aA6MXw3X3LkiBZBDLQAAirwMRscuplIVQyNlnZWJDgBAAMCAAN5AAM2BA"
-
-    await bot.send_photo(
-        chat_id=callback.from_user.id,
-        photo=photo_file_id,
-        caption="Прайс наших Услуг:",
+    await bot.send_photo(photo = 'AgACAgIAAxkBAAMFaBKGGg3y2aA6MXw3X3LkiBZBDLQAAirwMRscuplIVQyNlnZWJDgBAAMCAAN5AAM2BA',
+                         chat_id= callback.from_user.id,
+                         reply_markup=kb.catalog)
+    await callback.message.edit_caption(
+        caption='',
         reply_markup=kb.catalog
     )
+    await callback.message.delete()
 
 
 ############################## ЭТА ХРЕНЬ ОТПРАВЛЯЕТ НОВОЕ СООБЩЕНИЕ С ГЛАВНЫМ МЕНЮ, НЕ УДАЛЯЯ СТАРОЕ. (ТОЛЬКО ПРИ ВЫХОДЕ ИЗ ПРАЙСА)
@@ -213,6 +213,7 @@ async def cart(callback: CallbackQuery, bot: router):
         caption='',
         reply_markup=kb.main_menu
     )
+    await callback.message.delete()
 
 # кнопка инфо
 @router.callback_query(F.data == 'info')
@@ -354,7 +355,7 @@ async def info(callback: CallbackQuery):
 
 ################################################## КНОПКА НАЗАД ИЗ ЛЮБОГО КАРТА, С УДАЛЕНИЕМ УЖЕ ПРЕДЫДУЩЕГО СООБЩЕНИЯ
 # назад из любого карта
-@router.callback_query(F.data == 'back_to_menu')
+@router.callback_query(F.data == 'back_cart_order')
 async def back_to_main_menu(callback: CallbackQuery, bot: router):
     await callback.answer("Возвращаемся в главное меню")
     await callback.message.delete()
