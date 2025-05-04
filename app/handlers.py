@@ -2,7 +2,7 @@ import pytz
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram import Router, F
 from aiogram.fsm.state import StatesGroup, State
 
@@ -103,7 +103,7 @@ async def output(mess: Message, state: FSMContext, bot: router):
 async def form_context(callback: CallbackQuery, state: FSMContext):
     """ вместо message - callback, потому что при нажатии на кнопку
 не высвечивалось сообщение с просьбой ввести имя, потому что реакция и на то и на другое не возможна. Пришлось так """
-    await callback.message.answer('Введите имя')
+    await callback.message.answer('Введите имя ✏️👤')
     await state.set_state(Form.name)
     await callback.answer() # закрыть callback для того, чтобы оно в себя приняло только имя
 
@@ -112,7 +112,7 @@ async def form_context(callback: CallbackQuery, state: FSMContext):
 async def reg_name(mess: Message, state: FSMContext):
     await state.update_data(name = mess.text)
     await state.set_state(Form.age)
-    await mess.answer('Введите свой возраст')
+    await mess.answer('Введите свой возраст 🎂🔢')
 
 # сохранение и запрос на время
 @router.message(Form.age)
@@ -120,25 +120,25 @@ async def reg_age(mess: Message, state: FSMContext):
     await state.update_data(age = mess.text)
 
     if not 5 < int(mess.text) < 100:
-        await mess.answer('Введите корректный возраст.')
+        await mess.answer('Введите корректный возраст. ⚠️')
         return
 
     await state.set_state(Form.time_order)
-    await mess.answer('Введите день и время, в которые хотели бы посетить наш клуб(xx.yy.20nn и время)')
+    await mess.answer('Введите день и время, в которые хотели бы посетить наш клуб (xx.yy.20nn и время) 📅⏰')
 
 # сохранение и запрос на количество человек
 @router.message(Form.time_order)
 async def reg_time(mess: Message, state: FSMContext):
     await state.update_data(time_order = mess.text)
     await state.set_state(Form.crowd)
-    await mess.answer('Введите количество человек, которое посетит нас')
+    await mess.answer('Введите количество человек, которое посетит нас 👥🔢')
 
 # сохранение и запрос на номер телефона
 @router.message(Form.crowd)
 async def reg_crowd(mess: Message, state: FSMContext):
     await state.update_data(crowd = mess.text)
     await state.set_state(Form.phone_num)
-    await mess.answer('Введите свой номер телефона(По виду 7 *** *** ** **)')
+    await mess.answer('Введите свой номер телефона (формат: 7 *** *** ** ) 📞')
 
 # сохранение всех данных и их вывод.
 @router.message(Form.phone_num)
@@ -146,13 +146,15 @@ async def reg_num_and_close_form(mess: Message, state: FSMContext, bot: router):
 
     # валидация номера телефона, она простейшая, вероятность маленькая, но быть может, попросят переписать
     if (len(mess.text) != 11) or not any(char.isdigit() for char in mess.text): # Методы для строк. Isdigit - проверка на цифры.
-        await mess.answer("Пожалуйста, введите корректный номер телефона")
+        await mess.answer("Пожалуйста, введите корректный номер телефона. ❌")
         return # обрывание функции, для повторного использования функции
 
 ####################### ТУТ ВИДОИЗМЕНИЛ ТЕКСТ ПОСЛЕ РЕГИСТРАЦИИ
     # сохранение номера и создание объекта, который отдает все данные
-    await mess.answer('''Спасибо, регистрация завершена. \nС вами скоро свяжется наш менеджер.
-    Помните также, что услугу оплатить может только лицо, достигшее 18 лет. Учитывайте, что персонал может запросить документ, для удостоверения возраста''')
+    await mess.answer('''Спасибо, регистрация завершена! ✅
+С вами скоро свяжется наш менеджер. 🤝💬
+Помните также, что услугу может оплатить только лицо, достигшее 18 лет. 🔞📝
+Персонал может запросить документ для удостоверения возраста. 🪪⚠️''')
 
 ########################### ТУТ ДОБАВИЛ ВЫВОД ДОКУМЕНТА С ТЕХНИКОЙ БЕЗОПАСНОСТИ
     await bot.send_document(
@@ -221,16 +223,22 @@ async def info(callback: CallbackQuery):
     await callback.answer('Вы перешли во вкладку информация.')
     if callback.message.photo:
         await callback.message.edit_caption(
-            caption='''Мы Даем вам возможность почувствовать эмоции, которые вы до этого не испытывали никогда
-                    Мы - ДрайвКарт. Мы - скорость и адреналин.
-                    t.me/drivekart_adler''',
+            caption='''Прайс наших услуг: 💰🏁
+Мы даем вам возможность почувствовать эмоции, которые вы до этого не испытывали НИКОГДА! 🚀🔥
+
+Мы — ДрайвКарт. Мы — скорость и адреналин! 🏎💨
+📍 t.me/drivekart_adler 📲
+Instagram:  https://www.instagram.com/drivekart_adler?igsh=MWxlYzhkaGFiY3V5Mw==''',
             reply_markup=kb.info
         )
     else:
         await callback.message.edit_text(
-            text='''Мы Даем вам возможность почувствовать эмоции, которые вы до этого не испытывали никогда
-                    Мы - ДрайвКарт. Мы - скорость и адреналин.
-                    t.me/drivekart_adler''',
+            text='''Прайс наших услуг: 💰🏁
+Мы даем вам возможность почувствовать эмоции, которые вы до этого не испытывали НИКОГДА! 🚀🔥
+
+Мы — ДрайвКарт. Мы — скорость и адреналин! 🏎💨
+📍 t.me/drivekart_adler 📲
+Instagram:  https://www.instagram.com/drivekart_adler?igsh=MWxlYzhkaGFiY3V5Mw==''',
             reply_markup=kb.info
         )
 # кнопка назад из инфо
@@ -258,12 +266,14 @@ async def info(callback: CallbackQuery):
     await callback.answer('Вы перешли во вкладку связь с менеджером.')
     if callback.message.photo:
         await callback.message.edit_caption(
-            caption=' Связаться с нами: \n Номер телефона: +7 918 201 8008',
+            caption=''' Связаться с нами: ☎️
+📞 *+7 918 201 8008*''',
             reply_markup=kb.communication
         )
     else:
         await callback.message.edit_text(
-            text=' Связаться с нами: \n Номер телефона: +7 918 201 8008',
+            text='''Связаться с нами: ☎️
+📞 *+7 918 201 8008*''',
             reply_markup=kb.communication
         )
 
@@ -281,58 +291,88 @@ async def cart(callback: CallbackQuery):
 @router.callback_query(F.data == 'cart1')
 async def info(callback: CallbackQuery):
     await callback.answer('Вы перешли во вкладку "Взрослый 9Л.С".')
+    new_photo = InputMediaPhoto(
+        media = 'AgACAgIAAxkBAAP6aBZ_29-k-S9opdcPbe-08jpTeMsAAur4MRu2fLFIrYKndkCSAUQBAAMCAAN5AAM2BA',
+        caption = ' Взрослый 9Л.С 🚗💨'
+    )
     if callback.message.photo:
-        await callback.message.edit_caption(
-            caption='карт1',
+        await callback.message.edit_media(
+            new_photo,
             reply_markup=kb.cart_order
         )
     else:
         await callback.message.edit_text(
-            text='карт1',
+            text=' Взрослый 9Л.С 🚗💨',
             reply_markup=kb.cart_order
         )
 # кнопка карт2
 @router.callback_query(F.data == 'cart2')
 async def info(callback: CallbackQuery):
     await callback.answer('Вы перешли во вкладку "Взрослый 11Л.С".')
+    new_photo = InputMediaPhoto(
+        media = 'AgACAgIAAxkBAAP6aBZ_29-k-S9opdcPbe-08jpTeMsAAur4MRu2fLFIrYKndkCSAUQBAAMCAAN5AAM2BA',
+        caption = ' Взрослый 11Л.С 🚗💨'
+    )
     if callback.message.photo:
-        await callback.message.edit_caption(
-            caption='карт2',
+        await callback.message.edit_media(
+            new_photo,
             reply_markup=kb.cart_order
         )
     else:
         await callback.message.edit_text(
-            text='карт2',
+            text='Взрослый 11Л.С 🏎️🔥',
+            reply_markup=kb.cart_order
+        )
+
+@router.callback_query(F.data == 'cart_child')
+async def info(callback: CallbackQuery):
+    await callback.answer('Вы перешли во вкладку "Детский 9Л.С".')
+    new_photo = InputMediaPhoto(
+        media = 'AgACAgIAAxkBAAIBAAFoFn_7Af6yRAcPx7DUpAselkSVfwAC7PgxG7Z8sUjmzO4Xk2ukygEAAwIAA3kAAzYE',
+        capton = ' Детский 9Л.С 👦🚦'
+    )
+    if callback.message.photo:
+        await callback.message.edit_media(
+            new_photo,
+            reply_markup=kb.cart_order
+        )
+    else:
+        await callback.message.edit_text(
+            text=' Детский 9Л.С 👦🚦',
             reply_markup=kb.cart_order
         )
 
 # кнопка карт3
 @router.callback_query(F.data == 'cart3')
 async def info(callback: CallbackQuery):
-    await callback.answer('Вы перешли во вкладку "Дуо".')
+    await callback.answer('Вы перешли во вкладку "Дуэт".')
+    new_photo = InputMediaPhoto(
+        media = 'AgACAgIAAxkBAAP9aBZ_8v_jgzODxqFtaaikagRFVdMAAuv4MRu2fLFIbWgz9hSqBugBAAMCAAN5AAM2BA',
+        caption= 'Дуэт 👫🏁'
+    )
     if callback.message.photo:
-        await callback.message.edit_caption(
-            caption='карт3',
+        await callback.message.edit_media(
+            new_photo,
             reply_markup=kb.cart_order
         )
     else:
         await callback.message.edit_text(
-            text='карт3',
+            text='Дуэт 👫🏁',
             reply_markup=kb.cart_order
         )
 
 # кнопка карт4
 @router.callback_query(F.data == 'cart4')
-async def info(callback: CallbackQuery):
+async def info(callback: CallbackQuery, bot: router):
     await callback.answer('Вы перешли во вкладку "Турнир".')
     if callback.message.photo:
         await callback.message.edit_caption(
-            caption='карт4',
+            caption='Турнир 🏆🏎️',
             reply_markup=kb.cart_order
         )
     else:
         await callback.message.edit_text(
-            text='карт4',
+            text='Турнир 🏆🏎️',
             reply_markup=kb.cart_order
         )
 
@@ -343,12 +383,12 @@ async def info(callback: CallbackQuery):
     await callback.answer('Вы перешли в "Аренда трека".')
     if callback.message.photo:
         await callback.message.edit_caption(
-            caption='карт4',
+            caption='Аренда трека 🛣️🔧',
             reply_markup=kb.cart_order
         )
     else:
         await callback.message.edit_text(
-            text='карт4',
+            text='Аренда трека 🛣️🔧',
             reply_markup=kb.cart_order
         )
 
@@ -373,12 +413,14 @@ async def info_order(callback: CallbackQuery):
     await callback.answer('Вы перешли во вкладку связь с менеджером.')
     if callback.message.photo:
         await callback.message.edit_caption(
-            caption=' Связаться с нами: \n Номер телефона: +7 918 201 8008',
+            caption=''' Связаться с нами: ☎️
+📞 *+7 918 201 8008*''',
             reply_markup=kb.communication_order
         )
     else:
         await callback.message.edit_text(
-            text=' Связаться с нами: \n Номер телефона: +7 918 201 8008',
+            text=''' Связаться с нами: ☎️
+📞 *+7 918 201 8008*''',
             reply_markup=kb.communication_order
         )
 
@@ -396,9 +438,9 @@ async def cart(callback: CallbackQuery):
 @router.message(F.photo)
 async def get_photo(message: Message):
     await message.answer(f'ID фото:  {message.photo[-1].file_id}')
+
+
 '''
-
-
 ################################## ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ АЙДИШНИКА ДЛЯ ДОКУМЕНТОВ.
 '''
 @router.message(F.document)  # Ловим все документы
