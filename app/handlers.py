@@ -30,7 +30,7 @@ class Feed_back(StatesGroup):
 @router.message(CommandStart())
 async def start(message: Message):
     await message.answer_photo(
-        photo = 'AgACAgIAAxkBAAMDaBKF8fkYawznPGHO27duzvwtrPgAAiDwMRscuplIKpKVJ_tBxBgBAAMCAAN5AAM2BA',
+        photo = 'заглушка фото',
     reply_markup = kb.main_menu
         )
 
@@ -208,7 +208,7 @@ async def show_price(callback: CallbackQuery, bot: router):
 @router.callback_query(F.data == 'back_price')
 async def cart(callback: CallbackQuery, bot: router):
     await callback.answer('Вы вернулись назад.')
-    await bot.send_photo(photo = 'AgACAgIAAxkBAAMDaBKF8fkYawznPGHO27duzvwtrPgAAiDwMRscuplIKpKVJ_tBxBgBAAMCAAN5AAM2BA',
+    await bot.send_photo(photo = 'заглушка фото с главного меню',
                          chat_id= callback.from_user.id,
                          reply_markup=kb.main_menu)
     await callback.message.edit_caption(
@@ -448,4 +448,5 @@ async def handle_document(message: Message):
     file_id = message.document.file_id
     print(f"File ID документа: {file_id}")
     await message.answer(f"File ID: `{file_id}`", parse_mode="Markdown")
+
 '''
